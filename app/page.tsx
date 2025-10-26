@@ -1,4 +1,6 @@
+import React from "react";
 import Image from "next/image";
+import ShareButton from "./components/ShareButton";
 
 export default function Home() {
   return (
@@ -14,16 +16,18 @@ export default function Home() {
         />
         <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
           <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
+            This is now a{" "}
             <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
+              Progressive Web App (PWA)
+            </code>{" "}
+            with sharing capabilities.
           </li>
           <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
+            Try the share buttons below to test the Web Share API!
           </li>
         </ol>
+
+        <ShareButton />
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
           <a
