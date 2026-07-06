@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+}
+
+model User {
+  id           String          @id
+  email        String          @unique
+  name         String?
+  createdAt    DateTime        @default(now())
+  mealPlans    MealPlanEntry[] @relation("UserMealPlans")
+  sharedWithMe SharedPlan[]    @relation("SharedToUser")
+  sharedByMe   SharedPlan[]    @relation("SharedFromUser")
+}
+
+model Dish {
+  id               String          @id @default(cuid())
+  name             String
+  description      String?
+  imageUrl         String?
+  createdAt        DateTime        @default(now())
+  mealPlanEntries  MealPlanEntry[]
+}
+
+model MealPlanEntry {
+  id       String   @id @default(cuid())
+  date     DateTime
+  mealType MealType
+  dishId   String
+  dish     Dish     @relation(fields: [dishId], references: [id])
+  userId   String?
+  user     User?    @relation("UserMealPlans", fields: [userId], references: [id])
+
+  @@unique([date, mealType, userId])
+}
+
+model SharedPlan {
+  id         String @id @default(cuid())
+  sharerId   String
+  sharer     User   @relation("SharedFromUser", fields: [sharerId], references: [id])
+  receiverId String
+  receiver   User   @relation("SharedToUser", fields: [receiverId], references: [id])
+
+  @@unique([sharerId, receiverId])
+}
