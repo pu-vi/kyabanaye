@@ -7,14 +7,20 @@ datasource db {
 }
 
 enum MealType {
+  MORNING_DRINK
+  MORNING_SNACK
   BREAKFAST
+  BRUNCH
+  AFTERNOON_SNACK
   LUNCH
+  EVENING_SNACK
   DINNER
-  SNACK
+  DESSERT
+  DRINK
 }
 
 model User {
-  id           String          @id
+  id           String          @id @default(uuid()) @db.Uuid
   email        String          @unique
   name         String?
   createdAt    DateTime        @default(now())
@@ -24,32 +30,32 @@ model User {
 }
 
 model Dish {
-  id               String          @id @default(cuid())
-  name             String
-  description      String?
-  imageUrl         String?
-  createdAt        DateTime        @default(now())
-  mealPlanEntries  MealPlanEntry[]
+  id              String          @id @default(uuid()) @db.Uuid
+  name            String
+  description     String?
+  imageUrl        String?
+  createdAt       DateTime        @default(now())
+  mealPlanEntries MealPlanEntry[]
 }
 
 model MealPlanEntry {
-  id       String   @id @default(cuid())
+  id       String   @id @default(uuid()) @db.Uuid
   date     DateTime
   mealType MealType
-  dishId   String
+  dishId   String   @db.Uuid
   dish     Dish     @relation(fields: [dishId], references: [id])
-  userId   String?
+  userId   String?  @db.Uuid
   user     User?    @relation("UserMealPlans", fields: [userId], references: [id])
 
   @@unique([date, mealType, userId])
 }
 
 model SharedPlan {
-  id         String @id @default(cuid())
-  sharerId   String
-  sharer     User   @relation("SharedFromUser", fields: [sharerId], references: [id])
-  receiverId String
-  receiver   User   @relation("SharedToUser", fields: [receiverId], references: [id])
+  id           String @id @default(uuid()) @db.Uuid
+  sharerId     String @db.Uuid
+  sharer       User   @relation("SharedFromUser", fields: [sharerId], references: [id])
+  receiverId   String @db.Uuid
+  receiver     User   @relation("SharedToUser", fields: [receiverId], references: [id])
 
   @@unique([sharerId, receiverId])
 }
