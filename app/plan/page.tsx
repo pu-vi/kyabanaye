@@ -1,5 +1,6 @@
 "use client";
 
+import type { MealType } from "@prisma/client";
 import {
   FiArrowLeft,
   FiCalendar,
@@ -9,13 +10,21 @@ import {
   FiSave,
 } from "react-icons/fi";
 
-const mealTypes = [
-  { id: "breakfast", label: "Breakfast", icon: "☀️", checked: true },
-  { id: "midMorning", label: "Mid-Morning Snack", icon: "🍵", checked: false },
-  { id: "lunch", label: "Lunch", icon: "☀️", checked: true },
-  { id: "evening", label: "Evening Snack", icon: "☕", checked: true },
-  { id: "dinner", label: "Dinner", icon: "🌙", checked: true },
-  { id: "night", label: "Night Snack", icon: "⭐", checked: false },
+const mealTypes: Array<{
+  id: MealType;
+  label: string;
+  checked: boolean;
+}> = [
+  { id: "MORNING_DRINK", label: "Morning Drink", checked: false },
+  { id: "MORNING_SNACK", label: "Morning Snack", checked: false },
+  { id: "BREAKFAST", label: "Breakfast", checked: true },
+  { id: "BRUNCH", label: "Brunch", checked: false },
+  { id: "AFTERNOON_SNACK", label: "Afternoon Snack", checked: false },
+  { id: "LUNCH", label: "Lunch", checked: true },
+  { id: "EVENING_SNACK", label: "Evening Snack", checked: true },
+  { id: "DINNER", label: "Dinner", checked: true },
+  { id: "DESSERT", label: "Dessert", checked: false },
+  { id: "DRINK", label: "Drink", checked: false },
 ];
 
 const weekDays = [
@@ -127,19 +136,21 @@ export default function PlanPage() {
           </div>
         </div>
 
-        <div className="mt-4 rounded-3xl bg-white px-4 py-4 shadow-sm sm:px-6">
-          <div className="flex flex-wrap gap-3">
+        <div className="mt-4 rounded-3xl bg-white px-4 py-3 shadow-sm sm:px-6">
+          <div className="mb-3">
+            <h2 className="text-sm font-semibold text-slate-900">
+              Select meal types
+            </h2>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
             {mealTypes.map((meal) => (
               <button
                 key={meal.id}
-                className={`inline-flex min-w-[180px] items-center justify-center gap-2 rounded-3xl border px-4 py-3 text-left text-sm font-medium transition ${meal.checked ? "border-emerald-500 bg-emerald-50 text-slate-900 shadow-sm" : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"}`}
+                className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-[11px] font-medium transition ${meal.checked ? "border-emerald-500 bg-emerald-50 text-slate-900 shadow-sm" : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"}`}
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-base">
-                  {meal.icon}
-                </span>
                 <span>{meal.label}</span>
                 {meal.checked && (
-                  <FiCheckCircle size={16} className="text-emerald-600" />
+                  <FiCheckCircle size={12} className="text-emerald-600" />
                 )}
               </button>
             ))}

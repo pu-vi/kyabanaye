@@ -1,14 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
-import { FiMenu, FiChevronLeft, FiChevronRight, FiUser } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiUser } from "react-icons/fi";
 import BottomNav from "./components/BottomNav";
-import Drawer from "./components/Drawer";
 
 export default function Home() {
-  const [drawerOpen, setDrawerOpen] = useState(false);
-
   const days = [
     { short: "Fri", date: 4 },
     { short: "Sat", date: 5 },
@@ -62,47 +58,40 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white p-4">
-      <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
       <div className="max-w-6xl mx-auto">
-        <header className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button aria-label="menu" className="p-2 lg:hidden" onClick={() => setDrawerOpen(true)}>
-              <FiMenu size={20} />
-            </button>
-            <div className="text-left">
-              <p className="text-sm text-slate-600">Good morning, Pooja! <span className="ml-1">🌞</span></p>
-              <p className="text-xs text-slate-400">Let's make today healthy & amazing</p>
-            </div>
-          </div>
-          <div className="hidden lg:flex lg:items-center lg:gap-6">
-            <nav className="text-sm text-slate-600">Home · Plans · Recipes</nav>
-            <div className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center shadow">
-              <FiUser />
-            </div>
-          </div>
-        </header>
-
         <div className="mt-6 lg:flex lg:gap-8">
           <div className="lg:w-2/3">
             <section>
               <div className="flex items-center gap-3 overflow-x-auto pb-3">
-                <button className="p-2 rounded-md bg-white/60 shadow"><FiChevronLeft /></button>
+                <button className="p-2 rounded-md bg-white/60 shadow">
+                  <FiChevronLeft />
+                </button>
                 {days.map((d) => (
-                  <div key={d.date} className={`flex-shrink-0 w-16 text-center p-2 rounded-xl ${d.active ? 'bg-emerald-600 text-white' : 'bg-white'}`}>
+                  <div
+                    key={d.date}
+                    className={`flex-shrink-0 w-16 text-center p-2 rounded-xl ${d.active ? "bg-emerald-600 text-white" : "bg-white"}`}
+                  >
                     <div className="text-xs">{d.short}</div>
                     <div className="text-lg font-semibold">{d.date}</div>
                     <div className="text-[10px]">Jul</div>
                   </div>
                 ))}
-                <button className="p-2 rounded-md bg-white/60 shadow"><FiChevronRight /></button>
+                <button className="p-2 rounded-md bg-white/60 shadow">
+                  <FiChevronRight />
+                </button>
               </div>
             </section>
 
             <main className="mt-4 space-y-4 pb-32">
               {meals.map((m) => (
-                <article key={m.title} className="flex items-center justify-between bg-white rounded-xl p-3 shadow">
+                <article
+                  key={m.title}
+                  className="flex items-center justify-between bg-white rounded-xl p-3 shadow"
+                >
                   <div className="flex items-center gap-3">
-                    <div className={`p-3 rounded-full ${m.iconBg} w-12 h-12`}></div>
+                    <div
+                      className={`p-3 rounded-full ${m.iconBg} w-12 h-12`}
+                    ></div>
                     <div>
                       <div className="flex items-center gap-2">
                         <h3 className="text-base font-semibold">{m.title}</h3>
@@ -113,7 +102,13 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100">
-                    <Image src={m.image} alt="dish" width={80} height={80} className="object-cover" />
+                    <Image
+                      src={m.image}
+                      alt="dish"
+                      width={80}
+                      height={80}
+                      className="object-cover"
+                    />
                   </div>
                 </article>
               ))}
@@ -125,10 +120,16 @@ export default function Home() {
               <div className="bg-white rounded-2xl p-6 shadow">
                 <h4 className="text-sm text-slate-500">Viewing plan</h4>
                 <p className="mt-1 text-xl font-semibold">My Meal Plan</p>
-                <p className="mt-4 text-sm text-slate-600">Default Meal Plan (Admin)</p>
+                <p className="mt-4 text-sm text-slate-600">
+                  Default Meal Plan (Admin)
+                </p>
                 <div className="mt-6 flex justify-between">
-                  <button className="px-4 py-2 border border-emerald-500 text-emerald-700 rounded-lg">View & Edit</button>
-                  <button className="px-4 py-2 bg-emerald-600 text-white rounded-lg">Use Plan</button>
+                  <button className="px-4 py-2 border border-emerald-500 text-emerald-700 rounded-lg">
+                    View & Edit
+                  </button>
+                  <button className="px-4 py-2 bg-emerald-600 text-white rounded-lg">
+                    Use Plan
+                  </button>
                 </div>
               </div>
             </div>

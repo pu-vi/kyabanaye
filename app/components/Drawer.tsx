@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { FiX, FiCalendar, FiGrid, FiBookOpen, FiList } from "react-icons/fi";
 
 const links = [
-  { href: "/plan/today", label: "Today's Plan", icon: FiCalendar },
+  { href: "/", label: "Today's Plan", icon: FiCalendar },
   { href: "/plan", label: "Weekly Plan", icon: FiGrid },
   { href: "/menu", label: "My Menu", icon: FiBookOpen },
   { href: "/dish", label: "Dishes", icon: FiList },
