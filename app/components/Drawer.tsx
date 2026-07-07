@@ -14,9 +14,13 @@ const links = [
 export default function Drawer({
   open,
   onClose,
+  user,
+  onAuthAction,
 }: {
   open: boolean;
   onClose: () => void;
+  user: { name: string; avatarUrl: string } | null;
+  onAuthAction: () => void;
 }) {
   const pathname = usePathname();
 
@@ -71,6 +75,15 @@ export default function Drawer({
             );
           })}
         </nav>
+
+        <div className="mt-auto border-t border-slate-100 px-4 py-4">
+          <button
+            onClick={onAuthAction}
+            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          >
+            {user ? "Log out" : "Log in"}
+          </button>
+        </div>
       </aside>
     </>
   );
