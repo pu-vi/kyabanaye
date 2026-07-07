@@ -12,6 +12,7 @@
     "@heroui/react": "^3.2.1",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
+    "firebase": "^12.15.0",
     "next": "16.2.10",
     "pg": "^8.22.0",
     "pino": "^10.3.1",
