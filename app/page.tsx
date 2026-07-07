@@ -1,107 +1,74 @@
-import React from "react";
-import Image from "next/image";
-import ShareButton from "./components/ShareButton";
+import { Button, Card, Chip } from "@heroui/react";
+import { FiCalendar, FiClock, FiShare2 } from "react-icons/fi";
+
+const highlights = [
+  "Plan breakfasts, lunches, dinners, and snacks",
+  "Share a weekly menu with family or roommates",
+  "Keep recipes and dishes organized in one place",
+];
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            This is now a{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              Progressive Web App (PWA)
-            </code>{" "}
-            with sharing capabilities.
-          </li>
-          <li className="tracking-[-.01em]">
-            Try the share buttons below to test the Web Share API!
-          </li>
-        </ol>
+    <main className="flex flex-1 items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
+      <div className="w-full max-w-5xl rounded-3xl border border-white/70 bg-white/80 p-8 shadow-xl backdrop-blur sm:p-10 lg:p-14">
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+          <div className="max-w-2xl">
+            <Chip color="warning" className="mb-4">
+              Weekly meal planning made lighter
+            </Chip>
+            <h1 className="text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
+              Build a simple weekly meal plan you can actually follow.
+            </h1>
+            <p className="mt-4 text-lg leading-8 text-slate-600">
+              Kyabana Ye helps you organize dishes for each day, share plans
+              with others, and keep your schedule feeling calm instead of
+              chaotic.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button size="lg">Start planning</Button>
+              <Button variant="outline" size="lg">
+                View schema preview
+              </Button>
+            </div>
+          </div>
 
-        <ShareButton />
+          <Card className="w-full max-w-md border border-slate-200 bg-slate-50/80 shadow-sm">
+            <div className="p-6">
+              <div className="flex items-center gap-3">
+                <div className="rounded-full bg-amber-100 p-3 text-amber-700">
+                  <FiCalendar size={20} />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-500">
+                    This week
+                  </p>
+                  <p className="text-lg font-semibold text-slate-900">
+                    Monday to Sunday
+                  </p>
+                </div>
+              </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+              <div className="mt-6 space-y-3">
+                {highlights.map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-start gap-3 rounded-2xl bg-white p-3 shadow-sm"
+                  >
+                    <div className="mt-0.5 rounded-full bg-emerald-100 p-2 text-emerald-700">
+                      {item.includes("share") ? (
+                        <FiShare2 size={16} />
+                      ) : (
+                        <FiClock size={16} />
+                      )}
+                    </div>
+                    <p className="text-sm text-slate-700">{item}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </div>
+    </main>
   );
 }

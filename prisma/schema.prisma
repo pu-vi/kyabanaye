@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum MealType {
+  MORNING_DRINK
+  MORNING_SNACK
+  BREAKFAST
+  BRUNCH
+  AFTERNOON_SNACK
+  LUNCH
+  EVENING_SNACK
+  DINNER
+  DESSERT
+  DRINK
+}
+
+enum DishCategory {
+  VEG
+  NON_VEG
+  EGG
+}
+
+model User {
+  id           String          @id @default(uuid()) @db.Uuid
+  email        String          @unique
+  name         String?
+  createdAt    DateTime        @default(now())
+  mealPlans    MealPlanEntry[] @relation("UserMealPlans")
+  sharedWithMe SharedPlan[]    @relation("SharedToUser")
+  sharedByMe   SharedPlan[]    @relation("SharedFromUser")
+}
+
+model Dish {
+  id               String          @id @default(uuid()) @db.Uuid
+  name             String          @unique
+  description      String?
+  imageUrl         String?
+  recipeUrl        String?
+  category         DishCategory?
+  suggestedMealTypes MealType[]
+  createdAt        DateTime        @default(now())
+  mealPlanEntries  MealPlanEntry[]
+}
+
+model MealPlanEntry {
+  id       String   @id @default(uuid()) @db.Uuid
+  date     DateTime
+  mealType MealType
+  dishId   String   @db.Uuid
+  dish     Dish     @relation(fields: [dishId], references: [id])
+  userId   String?  @db.Uuid
+  user     User?    @relation("UserMealPlans", fields: [userId], references: [id])
+
+  @@unique([date, mealType, userId])
+}
+
+model SharedPlan {
+  id           String @id @default(uuid()) @db.Uuid
+  sharerId     String @db.Uuid
+  sharer       User   @relation("SharedFromUser", fields: [sharerId], references: [id])
+  receiverId   String @db.Uuid
+  receiver     User   @relation("SharedToUser", fields: [receiverId], references: [id])
+
+  @@unique([sharerId, receiverId])
+}
