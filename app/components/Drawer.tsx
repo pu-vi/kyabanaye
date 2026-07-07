@@ -6,12 +6,18 @@ import { FiX, FiCalendar, FiGrid, FiBookOpen, FiList } from "react-icons/fi";
 
 const links = [
   { href: "/plan/today", label: "Today's Plan", icon: FiCalendar },
-  { href: "/plan/weekly", label: "Weekly Plan", icon: FiGrid },
+  { href: "/plan", label: "Weekly Plan", icon: FiGrid },
   { href: "/menu", label: "My Menu", icon: FiBookOpen },
   { href: "/dish", label: "Dishes", icon: FiList },
 ];
 
-export default function Drawer({ open, onClose }: { open: boolean; onClose: () => void }) {
+export default function Drawer({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
   const pathname = usePathname();
 
   return (
@@ -20,7 +26,9 @@ export default function Drawer({ open, onClose }: { open: boolean; onClose: () =
       <div
         onClick={onClose}
         className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-300 ${
-          open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          open
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         }`}
       />
 
@@ -31,8 +39,14 @@ export default function Drawer({ open, onClose }: { open: boolean; onClose: () =
         }`}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-          <span className="text-lg font-semibold text-slate-800">Kyabana Ye</span>
-          <button onClick={onClose} aria-label="Close menu" className="p-1 text-slate-500 hover:text-slate-800">
+          <span className="text-lg font-semibold text-slate-800">
+            Kyabana Ye
+          </span>
+          <button
+            onClick={onClose}
+            aria-label="Close menu"
+            className="p-1 text-slate-500 hover:text-slate-800"
+          >
             <FiX size={22} />
           </button>
         </div>

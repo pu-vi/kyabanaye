@@ -6,7 +6,7 @@ import { FiCalendar, FiGrid, FiBookOpen, FiList } from "react-icons/fi";
 
 const links = [
   { href: "/plan/today", label: "Today", icon: FiCalendar },
-  { href: "/plan/weekly", label: "Weekly", icon: FiGrid },
+  { href: "/plan", label: "Weekly", icon: FiGrid },
   { href: "/menu", label: "My Menu", icon: FiBookOpen },
   { href: "/dish", label: "Dishes", icon: FiList },
 ];
