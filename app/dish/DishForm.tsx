@@ -56,8 +56,11 @@ export default function DishForm({
 
   const descriptionLength = form.description.length;
   const selectedCount = form.selectedMealTypes.length;
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const isSaveDisabled = form.name.trim().length === 0 || selectedCount === 0;
+  const isSaveDisabled =
+    form.name.trim().length === 0 || selectedCount === 0 || saving;
 
   const categoryLabel = useMemo(
     () =>
@@ -83,10 +86,30 @@ export default function DishForm({
     setForm((prev) => ({ ...prev, imageName: file.name }));
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  // TODO: Replace with real session userId once auth is wired up
+  const CURRENT_USER_ID: string | null = null;
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log("Dish saved", form);
-    router.back();
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/dishes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, userId: CURRENT_USER_ID }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error ?? "Failed to save dish");
+        return;
+      }
+      router.push("/dish");
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -114,7 +137,7 @@ export default function DishForm({
             disabled={isSaveDisabled}
             className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
           >
-            <FiSave size={16} /> Save
+            <FiSave size={16} /> {saving ? "Saving…" : "Save"}
           </button>
         </div>
 
@@ -123,6 +146,11 @@ export default function DishForm({
           onSubmit={handleSubmit}
           className="mt-6 space-y-6 rounded-3xl bg-white p-6 shadow-sm"
         >
+          {error && (
+            <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-600">
+              {error}
+            </p>
+          )}
           <div className="space-y-2">
             <label
               htmlFor="dish-name"
@@ -288,9 +316,9 @@ export default function DishForm({
             <button
               type="submit"
               disabled={isSaveDisabled}
-              className="inline-flex items-center justify-center rounded-3xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
+              className="inline-flex items-center justify-center gap-2 rounded-3xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
             >
-              <FiSave size={16} /> Save Dish
+              <FiSave size={16} /> {saving ? "Saving…" : "Save Dish"}
             </button>
           </div>
         </form>
