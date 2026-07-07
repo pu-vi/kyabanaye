@@ -1,9 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { FiMenu, FiChevronLeft, FiChevronRight, FiUser } from "react-icons/fi";
+import BottomNav from "./components/BottomNav";
+import Drawer from "./components/Drawer";
 
 export default function Home() {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   const days = [
     { short: "Fri", date: 4 },
     { short: "Sat", date: 5 },
@@ -57,10 +62,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white p-4">
+      <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
       <div className="max-w-6xl mx-auto">
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button aria-label="menu" className="p-2 lg:hidden">
+            <button aria-label="menu" className="p-2 lg:hidden" onClick={() => setDrawerOpen(true)}>
               <FiMenu size={20} />
             </button>
             <div className="text-left">
@@ -129,6 +135,7 @@ export default function Home() {
           </aside>
         </div>
       </div>
+      <BottomNav />
     </div>
   );
 }
