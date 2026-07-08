@@ -1,5 +1,6 @@
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -11,6 +12,23 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-export const analytics = getAnalytics(app);
+export const auth = getAuth(app);
+export const googleProvider = new GoogleAuthProvider();
+
+googleProvider.setCustomParameters({
+  prompt: "select_account",
+});
+
+export const initAnalytics = async () => {
+  if (typeof window !== "undefined") {
+    const supported = await isSupported();
+    if (supported) {
+      return getAnalytics(app);
+    }
+  }
+  return null;
+};
+

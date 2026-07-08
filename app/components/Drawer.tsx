@@ -42,17 +42,34 @@ export default function Drawer({
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-          <span className="text-lg font-semibold text-slate-800">
-            Kyabana Ye
-          </span>
-          <button
-            onClick={onClose}
-            aria-label="Close menu"
-            className="p-1 text-slate-500 hover:text-slate-800"
-          >
-            <FiX size={22} />
-          </button>
+        <div className="flex flex-col border-b border-slate-100 px-5 py-4 gap-3">
+          <div className="flex items-center justify-between">
+            <span className="text-lg font-semibold text-slate-800">
+              Kyabana Ye
+            </span>
+            <button
+              onClick={onClose}
+              aria-label="Close menu"
+              className="p-1 text-slate-500 hover:text-slate-800 cursor-pointer"
+            >
+              <FiX size={22} />
+            </button>
+          </div>
+          {user && (
+            <div className="flex items-center gap-3 mt-2 bg-slate-50 p-2.5 rounded-2xl border border-slate-100">
+              <img
+                src={user.avatarUrl}
+                alt={user.name}
+                className="h-10 w-10 rounded-full object-cover shadow-sm ring-2 ring-emerald-500/20"
+              />
+              <div className="overflow-hidden">
+                <p className="text-sm font-semibold text-slate-800 truncate">
+                  {user.name}
+                </p>
+                <p className="text-[10px] text-slate-400 font-medium">Logged in</p>
+              </div>
+            </div>
+          )}
         </div>
 
         <nav className="flex flex-col mt-4 px-3 gap-1">
@@ -79,7 +96,7 @@ export default function Drawer({
         <div className="mt-auto border-t border-slate-100 px-4 py-4">
           <button
             onClick={onAuthAction}
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 cursor-pointer active:scale-[0.98]"
           >
             {user ? "Log out" : "Log in"}
           </button>
