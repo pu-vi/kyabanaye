@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { FiMenu, FiUser, FiLogOut, FiLogIn } from "react-icons/fi";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Drawer from "./Drawer";
 
 const getTimeGreeting = () => {
@@ -14,9 +14,12 @@ const getTimeGreeting = () => {
 };
 
 export default function AppHeader() {
+  const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { user: fbUser, dbUser, logout } = useAuth();
   const router = useRouter();
+
+  if (pathname === "/login") return null;
 
   const handleAuthAction = async () => {
     if (dbUser) {

@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { FcGoogle } from "react-icons/fc";
-import { FiCalendar, FiBookOpen, FiShare2, FiArrowRight } from "react-icons/fi";
+import { FiCalendar, FiBookOpen, FiShare2, FiArrowRight, FiArrowLeft } from "react-icons/fi";
 
 export default function LoginPage() {
   const { user, dbUser, signInWithGoogle, loading: authLoading } = useAuth();
@@ -37,7 +38,18 @@ export default function LoginPage() {
   const showLoading = authLoading || signingIn;
 
   return (
-    <div className="relative min-h-[calc(100vh-80px)] flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-emerald-50/20 to-teal-50/30 overflow-hidden">
+    <div className="relative min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-emerald-50/20 to-teal-50/30 overflow-hidden">
+      {/* Back to Home Button */}
+      <div className="absolute top-6 left-6 z-10">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/80 hover:bg-white active:scale-95 border border-slate-200/80 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 cursor-pointer backdrop-blur-sm"
+        >
+          <FiArrowLeft size={16} className="text-slate-500" />
+          <span>Back to Home</span>
+        </Link>
+      </div>
+
       {/* Decorative background shapes */}
       <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-emerald-100/40 blur-3xl -z-10" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-teal-100/30 blur-3xl -z-10" />
