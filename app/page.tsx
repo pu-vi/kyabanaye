@@ -109,12 +109,12 @@ export default function Home() {
     });
   };
 
-  // Generate 5 days centered around the selected date
-  const getVisibleDays = (centerDate: Date) => {
+  // Generate 5 days starting from the selected date
+  const getVisibleDays = (startDate: Date) => {
     const daysList = [];
-    for (let i = -2; i <= 2; i++) {
-      const d = new Date(centerDate);
-      d.setDate(centerDate.getDate() + i);
+    for (let i = 0; i < 5; i++) {
+      const d = new Date(startDate);
+      d.setDate(startDate.getDate() + i);
       daysList.push(d);
     }
     return daysList;
@@ -181,16 +181,6 @@ export default function Home() {
         <div className="mt-4 lg:flex lg:gap-8">
           {/* Main Daily Plan Section */}
           <div className="lg:w-2/3 space-y-6">
-            
-            {/* Header Title Section */}
-            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 text-center sm:text-left">
-              <h2 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
-                Daily Tracker
-              </h2>
-              <p className="text-sm text-slate-500 font-medium mt-1">
-                Showing meals planned for <span className="font-semibold text-emerald-600">{formattedSelectedDate}</span>
-              </p>
-            </div>
 
             {/* Infinite Date Slider */}
             <section className="bg-white rounded-3xl p-4 shadow-sm border border-slate-100">
@@ -202,7 +192,7 @@ export default function Home() {
                 >
                   <FiChevronLeft size={18} />
                 </button>
-                
+
                 <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
                   {visibleDays.map((d) => {
                     const isActive = toISODateString(d) === toISODateString(selectedDate);
@@ -215,11 +205,10 @@ export default function Home() {
                       <button
                         key={d.getTime()}
                         onClick={() => setSelectedDate(d)}
-                        className={`flex-shrink-0 w-16 text-center py-2.5 rounded-2xl border transition-all duration-200 cursor-pointer ${
-                          isActive
-                            ? "bg-emerald-600 border-emerald-600 text-white shadow-md scale-105"
-                            : "bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50/50"
-                        }`}
+                        className={`flex-shrink-0 w-16 text-center py-2.5 rounded-2xl border transition-all duration-200 cursor-pointer ${isActive
+                          ? "bg-emerald-600 border-emerald-600 text-white shadow-md scale-105"
+                          : "bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50/50"
+                          }`}
                       >
                         <div className="text-[10px] uppercase font-bold tracking-wider opacity-85">
                           {dayShort}
@@ -275,7 +264,7 @@ export default function Home() {
                               {meal.title}
                             </h3>
                           </div>
-                          
+
                           {hasDishes ? (
                             <div className="space-y-1.5">
                               <p className="text-base font-black text-slate-800">
@@ -301,7 +290,7 @@ export default function Home() {
                           )}
                         </div>
                       </div>
-                      
+
                       <div className="text-right flex-shrink-0">
                         <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-xl">
                           {meal.time}
@@ -314,38 +303,6 @@ export default function Home() {
             </main>
           </div>
 
-          {/* Sidebar Section */}
-          <aside className="mt-6 lg:mt-0 lg:w-1/3">
-            <div className="sticky top-24 space-y-4">
-              <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-2xl">
-                    <FiCalendar size={20} />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                      Weekly Planner
-                    </h4>
-                    <p className="text-lg font-black text-slate-800">
-                      Weekly Schedule
-                    </p>
-                  </div>
-                </div>
-                
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  Plan breakfast, lunch, and dinner in our seven-day planner grid. Synchronize dishes easily.
-                </p>
-                
-                <Link
-                  href="/plan"
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-2xl text-sm font-semibold shadow-sm transition-all cursor-pointer mt-2"
-                >
-                  <span>Open Weekly Planner</span>
-                  <FiArrowRight size={16} />
-                </Link>
-              </div>
-            </div>
-          </aside>
         </div>
       </div>
       <BottomNav />
