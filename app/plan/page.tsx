@@ -4,14 +4,13 @@ import { useState, useEffect } from "react";
 import type { MealType } from "@prisma/client";
 import {
   FiArrowLeft,
-  FiCalendar,
   FiChevronLeft,
   FiChevronRight,
   FiCheckCircle,
-  FiRefreshCw,
   FiSave,
 } from "react-icons/fi";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 import PlanCell, { type DishSuggestion } from "./PlanCell";
 
 const mealTypes: Array<{
@@ -101,13 +100,22 @@ const allMealRows: Array<{
 ];
 
 export default function PlanPage() {
-  const { dbUser } = useAuth();
+  const { dbUser, loading } = useAuth();
+  const router = useRouter();
+
   const [activeMealTypes, setActiveMealTypes] = useState(mealTypes);
   const [weekStart, setWeekStart] = useState<Date>(() => getMondayOfCurrentWeek());
   const [allDishes, setAllDishes] = useState<DishSuggestion[]>([]);
   const [grid, setGrid] = useState<Record<string, string[]>>({});
   const [showSaveToast, setShowSaveToast] = useState(false);
-  const [saveMessage, setSaveMessage] = useState("Meal plan saved locally!");
+  const [saveMessage, setSaveMessage] = useState("");
+
+  // Restrict access entirely if not logged in
+  useEffect(() => {
+    if (!loading && !dbUser) {
+      router.push("/login");
+    }
+  }, [dbUser, loading, router]);
 
   // Fetch all dishes on mount
   useEffect(() => {
@@ -125,7 +133,7 @@ export default function PlanPage() {
     fetchDishes();
   }, []);
 
-  // Load weekly plan from database/localStorage when week start changes
+  // Load weekly plan from database when week start changes
   useEffect(() => {
     const loadPlan = async () => {
       const startDateStr = toISODateString(weekStart);
@@ -151,32 +159,17 @@ export default function PlanPage() {
               });
             });
             setGrid(newGrid);
-            return;
           }
         } catch (e) {
           console.error("Failed to load plan from database:", e);
         }
       }
-
-      // Fallback to localStorage
-      if (typeof window !== "undefined") {
-        const key = `plan_week_${startDateStr}`;
-        const stored = localStorage.getItem(key);
-        if (stored) {
-          try {
-            setGrid(JSON.parse(stored));
-          } catch (e) {
-            console.error("Failed to parse stored plan:", e);
-            setGrid({});
-          }
-        } else {
-          setGrid({});
-        }
-      }
     };
 
-    loadPlan();
-  }, [weekStart, dbUser]);
+    if (!loading && dbUser) {
+      loadPlan();
+    }
+  }, [weekStart, dbUser, loading]);
 
   const toggleMealType = (id: MealType) => {
     setActiveMealTypes((prev) =>
@@ -212,53 +205,51 @@ export default function PlanPage() {
     endDate.setDate(weekStart.getDate() + 6);
     const endDateStr = toISODateString(endDate);
 
-    if (dbUser?.id) {
-      // Format grid state to database schema format
-      const plans = currentWeekDays.map((day) => {
-        const meals: Record<string, string[]> = {};
-        allMealRows.forEach((row) => {
-          const key = `${day.dateStr}_${row.id}`;
-          const dishes = grid[key];
-          if (dishes && dishes.length > 0) {
-            meals[row.id] = dishes;
-          }
-        });
-        return {
-          date: day.dateStr,
-          meals,
-        };
-      }).filter((p) => Object.keys(p.meals).length > 0);
+    if (!dbUser?.id) return;
 
-      try {
-        const res = await fetch("/api/mealplans", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId: dbUser.id,
-            startDate: startDateStr,
-            endDate: endDateStr,
-            plans,
-          }),
-        });
-
-        if (res.ok) {
-          setSaveMessage("Meal plan saved to cloud!");
-          setShowSaveToast(true);
-          setTimeout(() => setShowSaveToast(false), 3000);
-          return;
+    // Format grid state to database schema format
+    const plans = currentWeekDays.map((day) => {
+      const meals: Record<string, string[]> = {};
+      allMealRows.forEach((row) => {
+        const key = `${day.dateStr}_${row.id}`;
+        const dishes = grid[key];
+        if (dishes && dishes.length > 0) {
+          meals[row.id] = dishes;
         }
-      } catch (e) {
-        console.error("Failed to save plan to database:", e);
-      }
-    }
+      });
+      return {
+        date: day.dateStr,
+        meals,
+      };
+    }).filter((p) => Object.keys(p.meals).length > 0);
 
-    // Save to localStorage as fallback
-    if (typeof window !== "undefined") {
-      const key = `plan_week_${startDateStr}`;
-      localStorage.setItem(key, JSON.stringify(grid));
-      setSaveMessage("Meal plan saved locally!");
+    try {
+      const res = await fetch("/api/mealplans", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: dbUser.id,
+          startDate: startDateStr,
+          endDate: endDateStr,
+          plans,
+        }),
+      });
+
+      if (res.ok) {
+        setSaveMessage("Meal plan saved to cloud!");
+        setShowSaveToast(true);
+        setTimeout(() => setShowSaveToast(false), 3000);
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        setSaveMessage(`Failed to save plan: ${errData.error || "Server error"}`);
+        setShowSaveToast(true);
+        setTimeout(() => setShowSaveToast(false), 3000);
+      }
+    } catch (e) {
+      console.error("Failed to save plan to database:", e);
+      setSaveMessage("Failed to save plan: Network error");
       setShowSaveToast(true);
       setTimeout(() => setShowSaveToast(false), 3000);
     }
@@ -294,6 +285,20 @@ export default function PlanPage() {
     return mealTypeObj ? mealTypeObj.checked : false;
   });
 
+  // Render a full-screen loading spinner while verifying login status
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+      </div>
+    );
+  }
+
+  // Prevent flicker during redirect
+  if (!dbUser) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-4 text-slate-900 sm:px-6 lg:px-8">
       {/* Toast Alert */}
@@ -306,7 +311,10 @@ export default function PlanPage() {
 
       <div className="mx-auto w-full max-w-[90rem]">
         <div className="flex items-center justify-between gap-4 rounded-3xl bg-white px-4 py-4 shadow-sm sm:px-6">
-          <button className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-200 cursor-pointer">
+          <button 
+            onClick={() => router.push("/")}
+            className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-100 px-3 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-200 cursor-pointer"
+          >
             <FiArrowLeft size={16} /> Back
           </button>
           <div className="text-center">
