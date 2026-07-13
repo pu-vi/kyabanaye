@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { FcGoogle } from "react-icons/fc";
-import { FiArrowLeft } from "react-icons/fi";
 
 export default function LoginPage() {
   const { user, dbUser, signInWithGoogle, loading: authLoading } = useAuth();
@@ -38,16 +36,6 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center p-6 bg-slate-50 text-slate-900">
-      {/* Back to Home Link */}
-      <div className="absolute top-6 left-6">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 transition text-xs font-semibold text-slate-700 shadow-sm cursor-pointer"
-        >
-          <FiArrowLeft size={14} />
-          <span>Back</span>
-        </Link>
-      </div>
 
       {/* Login Card */}
       <div className="w-full max-w-md bg-white rounded-3xl border border-slate-200/60 p-8 sm:p-12 shadow-xl text-center space-y-8">
