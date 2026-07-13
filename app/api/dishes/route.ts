@@ -35,12 +35,17 @@ export async function GET(req: NextRequest) {
     ],
   };
 
+  const limit = searchParams.get("limit");
+  const isAll = limit === "all";
+
   const [dishes, total] = await Promise.all([
     prisma.dish.findMany({
       where,
       orderBy: { name: "asc" },
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
+      ...(isAll ? {} : {
+        skip: (page - 1) * PAGE_SIZE,
+        take: PAGE_SIZE,
+      }),
       select: {
         id: true,
         name: true,
