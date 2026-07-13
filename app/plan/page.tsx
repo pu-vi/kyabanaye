@@ -11,7 +11,8 @@ import {
   FiRefreshCw,
   FiSave,
 } from "react-icons/fi";
-import PlanCell, { type Dish } from "./PlanCell";
+import { useAuth } from "@/context/AuthContext";
+import PlanCell, { type DishSuggestion } from "./PlanCell";
 
 const mealTypes: Array<{
   id: MealType;
@@ -100,11 +101,13 @@ const allMealRows: Array<{
 ];
 
 export default function PlanPage() {
+  const { dbUser } = useAuth();
   const [activeMealTypes, setActiveMealTypes] = useState(mealTypes);
   const [weekStart, setWeekStart] = useState<Date>(() => getMondayOfCurrentWeek());
-  const [allDishes, setAllDishes] = useState<Dish[]>([]);
-  const [grid, setGrid] = useState<Record<string, Dish[]>>({});
+  const [allDishes, setAllDishes] = useState<DishSuggestion[]>([]);
+  const [grid, setGrid] = useState<Record<string, string[]>>({});
   const [showSaveToast, setShowSaveToast] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("Meal plan saved locally!");
 
   // Fetch all dishes on mount
   useEffect(() => {
@@ -122,23 +125,58 @@ export default function PlanPage() {
     fetchDishes();
   }, []);
 
-  // Load weekly plan from localStorage when week start changes
+  // Load weekly plan from database/localStorage when week start changes
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const key = `plan_week_${toISODateString(weekStart)}`;
-      const stored = localStorage.getItem(key);
-      if (stored) {
+    const loadPlan = async () => {
+      const startDateStr = toISODateString(weekStart);
+      const endDate = new Date(weekStart);
+      endDate.setDate(weekStart.getDate() + 6);
+      const endDateStr = toISODateString(endDate);
+
+      if (dbUser?.id) {
         try {
-          setGrid(JSON.parse(stored));
+          const res = await fetch(
+            `/api/mealplans?userId=${dbUser.id}&startDate=${startDateStr}&endDate=${endDateStr}`
+          );
+          if (res.ok) {
+            const data = await res.json();
+            // Translate JSON structure into flat state grid
+            const newGrid: Record<string, string[]> = {};
+            data.forEach((plan: any) => {
+              const planDate = new Date(plan.date);
+              const dateKey = toISODateString(planDate);
+              const meals = plan.meals as Record<string, string[]>;
+              Object.entries(meals).forEach(([mealType, dishes]) => {
+                newGrid[`${dateKey}_${mealType}`] = dishes;
+              });
+            });
+            setGrid(newGrid);
+            return;
+          }
         } catch (e) {
-          console.error("Failed to parse stored plan:", e);
+          console.error("Failed to load plan from database:", e);
+        }
+      }
+
+      // Fallback to localStorage
+      if (typeof window !== "undefined") {
+        const key = `plan_week_${startDateStr}`;
+        const stored = localStorage.getItem(key);
+        if (stored) {
+          try {
+            setGrid(JSON.parse(stored));
+          } catch (e) {
+            console.error("Failed to parse stored plan:", e);
+            setGrid({});
+          }
+        } else {
           setGrid({});
         }
-      } else {
-        setGrid({});
       }
-    }
-  }, [weekStart]);
+    };
+
+    loadPlan();
+  }, [weekStart, dbUser]);
 
   const toggleMealType = (id: MealType) => {
     setActiveMealTypes((prev) =>
@@ -168,34 +206,83 @@ export default function PlanPage() {
     });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    const startDateStr = toISODateString(weekStart);
+    const endDate = new Date(weekStart);
+    endDate.setDate(weekStart.getDate() + 6);
+    const endDateStr = toISODateString(endDate);
+
+    if (dbUser?.id) {
+      // Format grid state to database schema format
+      const plans = currentWeekDays.map((day) => {
+        const meals: Record<string, string[]> = {};
+        allMealRows.forEach((row) => {
+          const key = `${day.dateStr}_${row.id}`;
+          const dishes = grid[key];
+          if (dishes && dishes.length > 0) {
+            meals[row.id] = dishes;
+          }
+        });
+        return {
+          date: day.dateStr,
+          meals,
+        };
+      }).filter((p) => Object.keys(p.meals).length > 0);
+
+      try {
+        const res = await fetch("/api/mealplans", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: dbUser.id,
+            startDate: startDateStr,
+            endDate: endDateStr,
+            plans,
+          }),
+        });
+
+        if (res.ok) {
+          setSaveMessage("Meal plan saved to cloud!");
+          setShowSaveToast(true);
+          setTimeout(() => setShowSaveToast(false), 3000);
+          return;
+        }
+      } catch (e) {
+        console.error("Failed to save plan to database:", e);
+      }
+    }
+
+    // Save to localStorage as fallback
     if (typeof window !== "undefined") {
-      const key = `plan_week_${toISODateString(weekStart)}`;
+      const key = `plan_week_${startDateStr}`;
       localStorage.setItem(key, JSON.stringify(grid));
+      setSaveMessage("Meal plan saved locally!");
       setShowSaveToast(true);
       setTimeout(() => setShowSaveToast(false), 3000);
     }
   };
 
-  const handleAddDish = (dateStr: string, mealType: MealType, dish: Dish) => {
+  const handleAddDish = (dateStr: string, mealType: MealType, dishName: string) => {
     const key = `${dateStr}_${mealType}`;
     setGrid((prev) => {
       const current = prev[key] || [];
-      if (current.some((d) => d.id === dish.id)) return prev;
+      if (current.includes(dishName)) return prev;
       return {
         ...prev,
-        [key]: [...current, dish],
+        [key]: [...current, dishName],
       };
     });
   };
 
-  const handleRemoveDish = (dateStr: string, mealType: MealType, dishId: string) => {
+  const handleRemoveDish = (dateStr: string, mealType: MealType, dishName: string) => {
     const key = `${dateStr}_${mealType}`;
     setGrid((prev) => {
       const current = prev[key] || [];
       return {
         ...prev,
-        [key]: current.filter((d) => d.id !== dishId),
+        [key]: current.filter((d) => d !== dishName),
       };
     });
   };
@@ -213,7 +300,7 @@ export default function PlanPage() {
       {showSaveToast && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-2xl bg-slate-950 px-4 py-3 text-sm text-white shadow-xl animate-fade-in duration-300">
           <FiCheckCircle className="text-emerald-400" size={16} />
-          <span>Meal plan saved locally!</span>
+          <span>{saveMessage}</span>
         </div>
       )}
 
@@ -318,8 +405,8 @@ export default function PlanPage() {
                         mealType={row.id}
                         selectedDishes={selectedDishes}
                         allDishes={allDishes}
-                        onAddDish={(dish) => handleAddDish(day.dateStr, row.id, dish)}
-                        onRemoveDish={(dishId) => handleRemoveDish(day.dateStr, row.id, dishId)}
+                        onAddDish={(name) => handleAddDish(day.dateStr, row.id, name)}
+                        onRemoveDish={(name) => handleRemoveDish(day.dateStr, row.id, name)}
                       />
                     </div>
                   );
@@ -371,8 +458,8 @@ export default function PlanPage() {
                           mealType={row.id}
                           selectedDishes={selectedDishes}
                           allDishes={allDishes}
-                          onAddDish={(dish) => handleAddDish(day.dateStr, row.id, dish)}
-                          onRemoveDish={(dishId) => handleRemoveDish(day.dateStr, row.id, dishId)}
+                          onAddDish={(name) => handleAddDish(day.dateStr, row.id, name)}
+                          onRemoveDish={(name) => handleRemoveDish(day.dateStr, row.id, name)}
                         />
                       </td>
                     );

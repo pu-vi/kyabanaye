@@ -36,7 +36,7 @@ model User {
   name         String?
   role         Role            @default(USER)
   createdAt    DateTime        @default(now())
-  mealPlans    MealPlanEntry[] @relation("UserMealPlans")
+  mealPlans    MealPlan[]      @relation("UserMealPlans")
   sharedWithMe SharedPlan[]    @relation("SharedToUser")
   sharedByMe   SharedPlan[]    @relation("SharedFromUser")
   dishes       Dish[]          @relation("UserDishes")
@@ -53,19 +53,17 @@ model Dish {
   userId           String?         @db.Uuid
   user             User?           @relation("UserDishes", fields: [userId], references: [id])
   createdAt        DateTime        @default(now())
-  mealPlanEntries  MealPlanEntry[]
 }
 
-model MealPlanEntry {
-  id       String   @id @default(uuid()) @db.Uuid
-  date     DateTime
-  mealType MealType
-  dishId   String   @db.Uuid
-  dish     Dish     @relation(fields: [dishId], references: [id])
-  userId   String?  @db.Uuid
-  user     User?    @relation("UserMealPlans", fields: [userId], references: [id])
+model MealPlan {
+  id        String   @id @default(uuid()) @db.Uuid
+  date      DateTime
+  userId    String?  @db.Uuid
+  user      User?    @relation("UserMealPlans", fields: [userId], references: [id])
+  meals     Json     // e.g. { "BREAKFAST": ["Aloo parantha", "lassi"], "LUNCH": ["Dal makhani"] }
+  createdAt DateTime @default(now())
 
-  @@unique([date, mealType, userId])
+  @@unique([date, userId])
 }
 
 model SharedPlan {
