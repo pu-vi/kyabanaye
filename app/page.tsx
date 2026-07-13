@@ -15,6 +15,15 @@ const toISODateString = (date: Date) => {
   return `${yyyy}-${mm}-${dd}`;
 };
 
+const getMondayOfWeek = (date: Date) => {
+  const day = date.getDay(); // 0 is Sunday, 1 is Monday, etc.
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+  const monday = new Date(date);
+  monday.setDate(diff);
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+};
+
 const allMealMetadata: Record<
   MealType,
   { title: string; time: string; icon: string; iconBg: string }
@@ -93,26 +102,26 @@ export default function Home() {
     }
   }, [selectedDate, dbUser, loading]);
 
-  const handlePrevDay = () => {
+  const handlePrevWeek = () => {
     setSelectedDate((prev) => {
       const d = new Date(prev);
-      d.setDate(prev.getDate() - 1);
+      d.setDate(prev.getDate() - 7);
       return d;
     });
   };
 
-  const handleNextDay = () => {
+  const handleNextWeek = () => {
     setSelectedDate((prev) => {
       const d = new Date(prev);
-      d.setDate(prev.getDate() + 1);
+      d.setDate(prev.getDate() + 7);
       return d;
     });
   };
 
-  // Generate 5 days starting from the selected date
+  // Generate 7 days starting from the week's Monday
   const getVisibleDays = (startDate: Date) => {
     const daysList = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 7; i++) {
       const d = new Date(startDate);
       d.setDate(startDate.getDate() + i);
       daysList.push(d);
@@ -120,7 +129,8 @@ export default function Home() {
     return daysList;
   };
 
-  const visibleDays = getVisibleDays(selectedDate);
+  const currentMonday = getMondayOfWeek(selectedDate);
+  const visibleDays = getVisibleDays(currentMonday);
 
   // Compile list of meals to display
   const getMealsToDisplay = () => {
@@ -178,22 +188,22 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-slate-50 p-4 pb-24 text-slate-900 sm:p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="mt-4 lg:flex lg:gap-8">
+        <div className="mt-1 lg:flex lg:gap-8">
           {/* Main Daily Plan Section */}
           <div className="lg:w-2/3 space-y-6">
 
             {/* Infinite Date Slider */}
-            <section className="bg-white rounded-3xl p-4 shadow-sm border border-slate-100">
-              <div className="flex items-center justify-between gap-2">
+            <section className="bg-white rounded-3xl p-3 sm:p-4 shadow-sm border border-slate-100">
+              <div className="flex items-center justify-between gap-1.5 sm:gap-3">
                 <button
-                  onClick={handlePrevDay}
-                  className="p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 active:scale-95 text-slate-600 border border-slate-200 transition-all cursor-pointer"
-                  title="Previous Day"
+                  onClick={handlePrevWeek}
+                  className="p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl bg-slate-50 hover:bg-slate-100 active:scale-95 text-slate-600 border border-slate-200 transition-all cursor-pointer flex-shrink-0"
+                  title="Previous Week"
                 >
-                  <FiChevronLeft size={18} />
+                  <FiChevronLeft size={16} className="sm:w-[18px] sm:h-[18px]" />
                 </button>
 
-                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+                <div className="flex-grow flex items-center justify-between gap-1 overflow-hidden py-1">
                   {visibleDays.map((d) => {
                     const isActive = toISODateString(d) === toISODateString(selectedDate);
                     const isToday = toISODateString(d) === toISODateString(new Date());
@@ -205,22 +215,22 @@ export default function Home() {
                       <button
                         key={d.getTime()}
                         onClick={() => setSelectedDate(d)}
-                        className={`flex-shrink-0 w-16 text-center py-2.5 rounded-2xl border transition-all duration-200 cursor-pointer ${isActive
+                        className={`flex-1 min-w-0 max-w-[50px] sm:max-w-[64px] text-center py-1.5 sm:py-2.5 rounded-xl sm:rounded-2xl border transition-all duration-200 cursor-pointer ${isActive
                           ? "bg-emerald-600 border-emerald-600 text-white shadow-md scale-105"
                           : "bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50/50"
                           }`}
                       >
-                        <div className="text-[10px] uppercase font-bold tracking-wider opacity-85">
+                        <div className="text-[8px] sm:text-[10px] uppercase font-bold tracking-wider opacity-85 truncate">
                           {dayShort}
                         </div>
-                        <div className="text-lg font-black leading-tight my-0.5">
+                        <div className="text-sm sm:text-lg font-black leading-tight my-0.5 sm:my-1">
                           {dayNum}
                         </div>
-                        <div className="text-[9px] font-semibold opacity-85">
+                        <div className="text-[7px] sm:text-[9px] font-semibold opacity-85 truncate">
                           {monthShort}
                         </div>
                         {isToday && !isActive && (
-                          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mx-auto mt-1" />
+                          <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-emerald-500 rounded-full mx-auto mt-0.5 sm:mt-1" />
                         )}
                       </button>
                     );
@@ -228,11 +238,11 @@ export default function Home() {
                 </div>
 
                 <button
-                  onClick={handleNextDay}
-                  className="p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 active:scale-95 text-slate-600 border border-slate-200 transition-all cursor-pointer"
-                  title="Next Day"
+                  onClick={handleNextWeek}
+                  className="p-1.5 sm:p-2.5 rounded-xl sm:rounded-2xl bg-slate-50 hover:bg-slate-100 active:scale-95 text-slate-600 border border-slate-200 transition-all cursor-pointer flex-shrink-0"
+                  title="Next Week"
                 >
-                  <FiChevronRight size={18} />
+                  <FiChevronRight size={16} className="sm:w-[18px] sm:h-[18px]" />
                 </button>
               </div>
             </section>
