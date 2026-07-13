@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FiMenu, FiUser, FiLogOut, FiLogIn } from "react-icons/fi";
+import { FiMenu, FiLogOut, FiLogIn } from "react-icons/fi";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import Drawer from "./Drawer";
