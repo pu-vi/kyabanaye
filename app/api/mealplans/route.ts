@@ -6,11 +6,11 @@ export async function GET(req: NextRequest) {
     const { searchParams } = req.nextUrl;
     const userId = searchParams.get("userId");
     const startDateStr = searchParams.get("startDate");
-    const endDateStr = searchParams.get("endDate");
+    const endDateStr = searchParams.get("endDate") || startDateStr;
 
-    if (!startDateStr || !endDateStr) {
+    if (!startDateStr) {
       return NextResponse.json(
-        { error: "startDate and endDate are required" },
+        { error: "startDate is required" },
         { status: 400 }
       );
     }

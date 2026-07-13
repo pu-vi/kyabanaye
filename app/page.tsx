@@ -1,136 +1,348 @@
 "use client";
 
-import Image from "next/image";
-import { FiChevronLeft, FiChevronRight, FiUser } from "react-icons/fi";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FiChevronLeft, FiChevronRight, FiCalendar, FiArrowRight, FiBookOpen } from "react-icons/fi";
+import { useAuth } from "@/context/AuthContext";
+import type { MealType } from "@prisma/client";
 import BottomNav from "./components/BottomNav";
 
-export default function Home() {
-  const days = [
-    { short: "Fri", date: 4 },
-    { short: "Sat", date: 5 },
-    { short: "Sun", date: 6, active: true },
-    { short: "Mon", date: 7 },
-    { short: "Tue", date: 8 },
-  ];
+const toISODateString = (date: Date) => {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+};
 
-  const meals = [
-    {
-      title: "Breakfast",
-      time: "8:00 AM",
-      titleSecondary: "Oats Upma",
-      description: "with Veggies & Peanuts",
-      image: "/dish-placeholder.jpg",
-      iconBg: "bg-amber-100",
-    },
-    {
-      title: "Mid-Morning Snack",
-      time: "11:00 AM",
-      titleSecondary: "Apple",
-      description: "with Almonds (5)",
-      image: "/dish-placeholder-2.jpg",
-      iconBg: "bg-sky-100",
-    },
-    {
-      title: "Lunch",
-      time: "1:30 PM",
-      titleSecondary: "Brown Rice, Dal Tadka",
-      description: "Bhindi Sabzi, Cucumber Salad",
-      image: "/dish-placeholder-3.jpg",
-      iconBg: "bg-emerald-100",
-    },
-    {
-      title: "Evening Snack",
-      time: "5:00 PM",
-      titleSecondary: "Green Tea",
-      description: "with Roasted Makhana",
-      image: "/dish-placeholder.jpg",
-      iconBg: "bg-violet-100",
-    },
-    {
-      title: "Dinner",
-      time: "8:00 PM",
-      titleSecondary: "Moong Dal Chilla",
-      description: "with Mint Chutney & Salad",
-      image: "/dish-placeholder-2.jpg",
-      iconBg: "bg-pink-100",
-    },
-  ];
+const allMealMetadata: Record<
+  MealType,
+  { title: string; time: string; icon: string; iconBg: string }
+> = {
+  MORNING_DRINK: { title: "Morning Drink", time: "7:00 AM", icon: "🥛", iconBg: "bg-blue-100 text-blue-700" },
+  MORNING_SNACK: { title: "Morning Snack", time: "10:30 AM", icon: "🍎", iconBg: "bg-rose-100 text-rose-700" },
+  BREAKFAST: { title: "Breakfast", time: "8:30 AM", icon: "☀️", iconBg: "bg-amber-100 text-amber-700" },
+  BRUNCH: { title: "Brunch", time: "11:30 AM", icon: "🥞", iconBg: "bg-orange-100 text-orange-700" },
+  AFTERNOON_SNACK: { title: "Afternoon Snack", time: "4:00 PM", icon: "🍌", iconBg: "bg-yellow-100 text-yellow-700" },
+  LUNCH: { title: "Lunch", time: "1:30 PM", icon: "☀️", iconBg: "bg-emerald-100 text-emerald-700" },
+  EVENING_SNACK: { title: "Evening Snack", time: "5:30 PM", icon: "☕", iconBg: "bg-violet-100 text-violet-700" },
+  DINNER: { title: "Dinner", time: "8:30 PM", icon: "🌙", iconBg: "bg-pink-100 text-pink-700" },
+  DESSERT: { title: "Dessert", time: "9:30 PM", icon: "🍰", iconBg: "bg-red-100 text-red-700" },
+  DRINK: { title: "Drink", time: "10:00 PM", icon: "🍹", iconBg: "bg-teal-100 text-teal-700" },
+};
+
+const chronologicalOrder: MealType[] = [
+  "MORNING_DRINK",
+  "MORNING_SNACK",
+  "BREAKFAST",
+  "BRUNCH",
+  "LUNCH",
+  "AFTERNOON_SNACK",
+  "EVENING_SNACK",
+  "DINNER",
+  "DESSERT",
+  "DRINK",
+];
+
+export default function Home() {
+  const { dbUser, loading } = useAuth();
+  const router = useRouter();
+
+  const [selectedDate, setSelectedDate] = useState<Date>(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+  });
+
+  const [dayPlan, setDayPlan] = useState<Record<string, string[]>>({});
+  const [fetchingPlan, setFetchingPlan] = useState(false);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!loading && !dbUser) {
+      router.push("/login");
+    }
+  }, [dbUser, loading, router]);
+
+  // Fetch plan for the selected single date
+  useEffect(() => {
+    const fetchPlan = async () => {
+      if (!dbUser?.id) return;
+      setFetchingPlan(true);
+
+      const dateStr = toISODateString(selectedDate);
+      try {
+        const res = await fetch(`/api/mealplans?userId=${dbUser.id}&startDate=${dateStr}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.length > 0) {
+            setDayPlan(data[0].meals || {});
+          } else {
+            setDayPlan({});
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load daily plan:", e);
+      } finally {
+        setFetchingPlan(false);
+      }
+    };
+
+    if (!loading && dbUser) {
+      fetchPlan();
+    }
+  }, [selectedDate, dbUser, loading]);
+
+  const handlePrevDay = () => {
+    setSelectedDate((prev) => {
+      const d = new Date(prev);
+      d.setDate(prev.getDate() - 1);
+      return d;
+    });
+  };
+
+  const handleNextDay = () => {
+    setSelectedDate((prev) => {
+      const d = new Date(prev);
+      d.setDate(prev.getDate() + 1);
+      return d;
+    });
+  };
+
+  // Generate 5 days centered around the selected date
+  const getVisibleDays = (centerDate: Date) => {
+    const daysList = [];
+    for (let i = -2; i <= 2; i++) {
+      const d = new Date(centerDate);
+      d.setDate(centerDate.getDate() + i);
+      daysList.push(d);
+    }
+    return daysList;
+  };
+
+  const visibleDays = getVisibleDays(selectedDate);
+
+  // Compile list of meals to display
+  const getMealsToDisplay = () => {
+    const list: Array<{
+      id: MealType;
+      title: string;
+      time: string;
+      icon: string;
+      iconBg: string;
+      dishes: string[];
+    }> = [];
+
+    chronologicalOrder.forEach((mealId) => {
+      const dishes = dayPlan[mealId] || [];
+      const isCore =
+        mealId === "BREAKFAST" ||
+        mealId === "LUNCH" ||
+        mealId === "EVENING_SNACK" ||
+        mealId === "DINNER";
+
+      if (isCore || dishes.length > 0) {
+        const meta = allMealMetadata[mealId];
+        list.push({
+          id: mealId,
+          ...meta,
+          dishes,
+        });
+      }
+    });
+
+    return list;
+  };
+
+  const displayMeals = getMealsToDisplay();
+
+  const formattedSelectedDate = selectedDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+      </div>
+    );
+  }
+
+  if (!dbUser) {
+    return null;
+  }
 
   return (
-    <div className="min-h-screen bg-white p-4">
+    <div className="min-h-screen bg-slate-50 p-4 pb-24 text-slate-900 sm:p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="mt-6 lg:flex lg:gap-8">
-          <div className="lg:w-2/3">
-            <section>
-              <div className="flex items-center gap-3 overflow-x-auto pb-3">
-                <button className="p-2 rounded-md bg-white/60 shadow">
-                  <FiChevronLeft />
+        <div className="mt-4 lg:flex lg:gap-8">
+          {/* Main Daily Plan Section */}
+          <div className="lg:w-2/3 space-y-6">
+            
+            {/* Header Title Section */}
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 text-center sm:text-left">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
+                Daily Tracker
+              </h2>
+              <p className="text-sm text-slate-500 font-medium mt-1">
+                Showing meals planned for <span className="font-semibold text-emerald-600">{formattedSelectedDate}</span>
+              </p>
+            </div>
+
+            {/* Infinite Date Slider */}
+            <section className="bg-white rounded-3xl p-4 shadow-sm border border-slate-100">
+              <div className="flex items-center justify-between gap-2">
+                <button
+                  onClick={handlePrevDay}
+                  className="p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 active:scale-95 text-slate-600 border border-slate-200 transition-all cursor-pointer"
+                  title="Previous Day"
+                >
+                  <FiChevronLeft size={18} />
                 </button>
-                {days.map((d) => (
-                  <div
-                    key={d.date}
-                    className={`flex-shrink-0 w-16 text-center p-2 rounded-xl ${d.active ? "bg-emerald-600 text-white" : "bg-white"}`}
-                  >
-                    <div className="text-xs">{d.short}</div>
-                    <div className="text-lg font-semibold">{d.date}</div>
-                    <div className="text-[10px]">Jul</div>
-                  </div>
-                ))}
-                <button className="p-2 rounded-md bg-white/60 shadow">
-                  <FiChevronRight />
+                
+                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+                  {visibleDays.map((d) => {
+                    const isActive = toISODateString(d) === toISODateString(selectedDate);
+                    const isToday = toISODateString(d) === toISODateString(new Date());
+                    const dayNum = d.getDate();
+                    const dayShort = d.toLocaleString("default", { weekday: "short" });
+                    const monthShort = d.toLocaleString("default", { month: "short" });
+
+                    return (
+                      <button
+                        key={d.getTime()}
+                        onClick={() => setSelectedDate(d)}
+                        className={`flex-shrink-0 w-16 text-center py-2.5 rounded-2xl border transition-all duration-200 cursor-pointer ${
+                          isActive
+                            ? "bg-emerald-600 border-emerald-600 text-white shadow-md scale-105"
+                            : "bg-white border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50/50"
+                        }`}
+                      >
+                        <div className="text-[10px] uppercase font-bold tracking-wider opacity-85">
+                          {dayShort}
+                        </div>
+                        <div className="text-lg font-black leading-tight my-0.5">
+                          {dayNum}
+                        </div>
+                        <div className="text-[9px] font-semibold opacity-85">
+                          {monthShort}
+                        </div>
+                        {isToday && !isActive && (
+                          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mx-auto mt-1" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  onClick={handleNextDay}
+                  className="p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 active:scale-95 text-slate-600 border border-slate-200 transition-all cursor-pointer"
+                  title="Next Day"
+                >
+                  <FiChevronRight size={18} />
                 </button>
               </div>
             </section>
 
-            <main className="mt-4 space-y-4 pb-32">
-              {meals.map((m) => (
-                <article
-                  key={m.title}
-                  className="flex items-center justify-between bg-white rounded-xl p-3 shadow"
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`p-3 rounded-full ${m.iconBg} w-12 h-12`}
-                    ></div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-base font-semibold">{m.title}</h3>
+            {/* Meals Display Area */}
+            <main className="space-y-4">
+              {fetchingPlan ? (
+                <div className="bg-white rounded-3xl p-12 text-center border border-slate-100 shadow-sm space-y-3">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto" />
+                  <p className="text-sm font-semibold text-slate-400">Loading daily plan...</p>
+                </div>
+              ) : (
+                displayMeals.map((meal) => {
+                  const hasDishes = meal.dishes.length > 0;
+                  return (
+                    <article
+                      key={meal.id}
+                      className="flex items-start justify-between bg-white rounded-3xl p-5 shadow-sm border border-slate-100 transition-all hover:shadow-md"
+                    >
+                      <div className="flex gap-4">
+                        <div
+                          className={`flex items-center justify-center p-3 rounded-2xl ${meal.iconBg} w-12 h-12 text-xl font-bold flex-shrink-0`}
+                        >
+                          {meal.icon}
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
+                              {meal.title}
+                            </h3>
+                          </div>
+                          
+                          {hasDishes ? (
+                            <div className="space-y-1.5">
+                              <p className="text-base font-black text-slate-800">
+                                {meal.dishes[0]}
+                              </p>
+                              {meal.dishes.length > 1 && (
+                                <div className="flex flex-wrap gap-1.5">
+                                  {meal.dishes.slice(1).map((dish, i) => (
+                                    <span
+                                      key={`${dish}-${i}`}
+                                      className="inline-flex items-center rounded-xl bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600 border border-slate-200"
+                                    >
+                                      {dish}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-slate-400 italic">
+                              No meals planned for this slot
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <p className="text-sm text-emerald-600">{m.time}</p>
-                      <p className="text-sm font-medium">{m.titleSecondary}</p>
-                      <p className="text-xs text-slate-500">{m.description}</p>
-                    </div>
-                  </div>
-                  <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100">
-                    <Image
-                      src={m.image}
-                      alt="dish"
-                      width={80}
-                      height={80}
-                      className="object-cover"
-                    />
-                  </div>
-                </article>
-              ))}
+                      
+                      <div className="text-right flex-shrink-0">
+                        <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-xl">
+                          {meal.time}
+                        </span>
+                      </div>
+                    </article>
+                  );
+                })
+              )}
             </main>
           </div>
 
+          {/* Sidebar Section */}
           <aside className="mt-6 lg:mt-0 lg:w-1/3">
-            <div className="sticky top-20">
-              <div className="bg-white rounded-2xl p-6 shadow">
-                <h4 className="text-sm text-slate-500">Viewing plan</h4>
-                <p className="mt-1 text-xl font-semibold">My Meal Plan</p>
-                <p className="mt-4 text-sm text-slate-600">
-                  Default Meal Plan (Admin)
-                </p>
-                <div className="mt-6 flex justify-between">
-                  <button className="px-4 py-2 border border-emerald-500 text-emerald-700 rounded-lg">
-                    View & Edit
-                  </button>
-                  <button className="px-4 py-2 bg-emerald-600 text-white rounded-lg">
-                    Use Plan
-                  </button>
+            <div className="sticky top-24 space-y-4">
+              <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-2xl">
+                    <FiCalendar size={20} />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                      Weekly Planner
+                    </h4>
+                    <p className="text-lg font-black text-slate-800">
+                      Weekly Schedule
+                    </p>
+                  </div>
                 </div>
+                
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  Plan breakfast, lunch, and dinner in our seven-day planner grid. Synchronize dishes easily.
+                </p>
+                
+                <Link
+                  href="/plan"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white rounded-2xl text-sm font-semibold shadow-sm transition-all cursor-pointer mt-2"
+                >
+                  <span>Open Weekly Planner</span>
+                  <FiArrowRight size={16} />
+                </Link>
               </div>
             </div>
           </aside>
