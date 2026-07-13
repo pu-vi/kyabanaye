@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Kyabana Ye",
-  description: "Plan your weekly meals with a simple, shared experience.",
+  title: "Plate Slate",
+  description: "Socho kam, khao zyada",
 };
 
 export default function RootLayout({

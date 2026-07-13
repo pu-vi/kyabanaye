@@ -43,9 +43,9 @@ export default function AppHeader() {
         onAuthAction={handleAuthAction}
       />
       <header className="bg-slate-50 border-b border-slate-200">
-        <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl p-1 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3.5">
               <button
                 aria-label="menu"
                 className="p-2 rounded-2xl bg-white text-slate-800 shadow-sm lg:hidden hover:bg-slate-50 active:scale-95 transition-all cursor-pointer"
@@ -53,12 +53,16 @@ export default function AppHeader() {
               >
                 <FiMenu size={20} />
               </button>
-              <div className="text-left">
-                <p className="text-sm font-semibold text-slate-800">
+              <a href="/" className="flex items-center gap-2">
+                <img src="/logo.png" alt="Plate Slate Logo" className="h-16 object-contain" />
+              </a>
+              <span className="hidden md:inline text-slate-300">|</span>
+              <div className="hidden md:block text-left">
+                <p className="text-xs font-semibold text-slate-700">
                   {greeting}, {displayName}!
                 </p>
-                <p className="text-xs text-slate-500">
-                  Let's make today healthy & amazing
+                <p className="text-[10px] text-slate-400">
+                  Socho kam, khao zyada
                 </p>
               </div>
             </div>

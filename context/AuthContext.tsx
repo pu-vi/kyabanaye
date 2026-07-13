@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           avatarUrl: firebaseUser.photoURL || `https://api.dicebear.com/6.x/avataaars/svg?seed=${data.user.name || "User"}`,
           role: data.user.role,
         };
-        window.localStorage.setItem("kyabana-user", JSON.stringify(localStorageUser));
+        window.localStorage.setItem("plateslate-user", JSON.stringify(localStorageUser));
       }
     } catch (error) {
       console.error("Database user sync error:", error);
@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Attempt to load from localStorage first for fast initial load
     if (typeof window !== "undefined") {
-      const stored = window.localStorage.getItem("kyabana-user");
+      const stored = window.localStorage.getItem("plateslate-user");
       if (stored) {
         try {
           const parsed = JSON.parse(stored);
@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             createdAt: "", // Placeholder
           });
         } catch {
-          window.localStorage.removeItem("kyabana-user");
+          window.localStorage.removeItem("plateslate-user");
         }
       }
     }
@@ -101,7 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setDbUser(null);
         if (typeof window !== "undefined") {
-          window.localStorage.removeItem("kyabana-user");
+          window.localStorage.removeItem("plateslate-user");
         }
       }
       setLoading(false);
@@ -128,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setDbUser(null);
       setUser(null);
       if (typeof window !== "undefined") {
-        window.localStorage.removeItem("kyabana-user");
+        window.localStorage.removeItem("plateslate-user");
       }
     } catch (error) {
       console.error("Error signing out:", error);

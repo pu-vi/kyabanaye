@@ -44,9 +44,12 @@ export default function Drawer({
       >
         <div className="flex flex-col border-b border-slate-100 px-5 py-4 gap-3">
           <div className="flex items-center justify-between">
-            <span className="text-lg font-semibold text-slate-800">
-              Kyabana Ye
-            </span>
+            <div className="flex items-center gap-2">
+              <img src="/logo.png" alt="Plate Slate Logo" className="h-6 w-6 object-contain" />
+              <span className="text-lg font-bold text-slate-800">
+                Plate Slate
+              </span>
+            </div>
             <button
               onClick={onClose}
               aria-label="Close menu"

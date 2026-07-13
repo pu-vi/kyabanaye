@@ -59,7 +59,7 @@ export default function LoginPage() {
         <div className="md:col-span-7 space-y-8 pr-0 md:pr-8 border-b md:border-b-0 md:border-r border-slate-200/60 pb-8 md:pb-0">
           <div className="space-y-4">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100/80">
-              🍎 Kyabana Ye Meal Planner
+              🍽️ Plate Slate
             </span>
             <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-800 leading-tight">
               What are we <br />
