@@ -12,8 +12,9 @@ async function fetchDish(id: string): Promise<DishFormData | null> {
   };
 }
 
-export default async function DishPage({ params }: { params: { id: string } }) {
-  const dish = await fetchDish(params.id);
+export default async function DishPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const dish = await fetchDish(id);
 
   if (!dish) {
     return (
