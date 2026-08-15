@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { FiDownload, FiX, FiShare } from "react-icons/fi";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -81,11 +80,9 @@ export default function InstallPrompt() {
       <div className="flex items-center justify-between gap-3 rounded-3xl bg-slate-900/95 p-4 text-white shadow-2xl backdrop-blur-md border border-slate-800">
         <div className="flex items-center gap-3">
           <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-2xl border border-slate-700 bg-white p-1">
-            <Image
+            <img
               src="/logo.png"
               alt="PlateSlate"
-              width={48}
-              height={48}
               className="h-full w-full object-contain"
             />
           </div>
