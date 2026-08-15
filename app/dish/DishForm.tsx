@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { FiArrowLeft, FiImage, FiLink, FiSave } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 
@@ -61,12 +61,6 @@ export default function DishForm({
 
   const isSaveDisabled =
     form.name.trim().length === 0 || selectedCount === 0 || saving;
-
-  const categoryLabel = useMemo(
-    () =>
-      categoryOptions.find((option) => option.value === form.category)?.label,
-    [form.category],
-  );
 
   const handleToggleMealType = (id: string) => {
     setForm((prev) => {

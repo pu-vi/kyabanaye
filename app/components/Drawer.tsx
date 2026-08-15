@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { FiX, FiCalendar, FiGrid, FiBookOpen, FiList } from "react-icons/fi";
+import { FiX, FiCalendar, FiGrid, FiList } from "react-icons/fi";
 
 const links = [
   { href: "/", label: "Today's Plan", icon: FiCalendar },
   { href: "/plan", label: "Weekly Plan", icon: FiGrid },
-  { href: "/menu", label: "My Menu", icon: FiBookOpen },
   { href: "/dish", label: "Dishes", icon: FiList },
 ];
 
@@ -43,7 +43,7 @@ export default function Drawer({
         <div className="flex flex-col border-b border-slate-100 px-5 py-4 gap-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <img src="/logo.png" alt="Plate Slate Logo" className="h-16 object-contain" />
+              <Image src="/logo.png" alt="Plate Slate Logo" width={64} height={64} className="h-16 w-auto object-contain" />
             </div>
             <button
               onClick={onClose}
@@ -55,11 +55,16 @@ export default function Drawer({
           </div>
           {user && (
             <div className="flex items-center gap-3 mt-2 bg-slate-50 p-2.5 rounded-2xl border border-slate-100">
-              <img
-                src={user.avatarUrl}
-                alt={user.name}
-                className="h-10 w-10 rounded-full object-cover shadow-sm ring-2 ring-emerald-500/20"
-              />
+              {user.avatarUrl && (
+                <Image
+                  src={user.avatarUrl}
+                  alt={user.name}
+                  width={40}
+                  height={40}
+                  unoptimized
+                  className="h-10 w-10 rounded-full object-cover shadow-sm ring-2 ring-emerald-500/20"
+                />
+              )}
               <div className="overflow-hidden">
                 <p className="text-sm font-semibold text-slate-800 truncate">
                   {user.name}

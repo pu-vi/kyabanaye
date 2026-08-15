@@ -34,14 +34,14 @@ CREATE TABLE "Dish" (
 );
 
 -- CreateTable
-CREATE TABLE "MealPlanEntry" (
+CREATE TABLE "MealPlan" (
     "id" UUID NOT NULL,
     "date" TIMESTAMP(3) NOT NULL,
-    "mealType" "MealType" NOT NULL,
-    "dishId" UUID NOT NULL,
     "userId" UUID,
+    "meals" JSONB NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "MealPlanEntry_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "MealPlan_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -60,7 +60,7 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "Dish_name_key" ON "Dish"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "MealPlanEntry_date_mealType_userId_key" ON "MealPlanEntry"("date", "mealType", "userId");
+CREATE UNIQUE INDEX "MealPlan_date_userId_key" ON "MealPlan"("date", "userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "SharedPlan_sharerId_receiverId_key" ON "SharedPlan"("sharerId", "receiverId");
@@ -69,10 +69,7 @@ CREATE UNIQUE INDEX "SharedPlan_sharerId_receiverId_key" ON "SharedPlan"("sharer
 ALTER TABLE "Dish" ADD CONSTRAINT "Dish_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "MealPlanEntry" ADD CONSTRAINT "MealPlanEntry_dishId_fkey" FOREIGN KEY ("dishId") REFERENCES "Dish"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "MealPlanEntry" ADD CONSTRAINT "MealPlanEntry_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "MealPlan" ADD CONSTRAINT "MealPlan_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "SharedPlan" ADD CONSTRAINT "SharedPlan_sharerId_fkey" FOREIGN KEY ("sharerId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

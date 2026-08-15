@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
+
+interface InputPlan {
+  date: string;
+  meals: Record<string, string[]>;
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -18,7 +24,7 @@ export async function GET(req: NextRequest) {
     const startDate = new Date(startDateStr + "T00:00:00.000Z");
     const endDate = new Date(endDateStr + "T23:59:59.999Z");
 
-    const where: any = {
+    const where: Prisma.MealPlanWhereInput = {
       date: {
         gte: startDate,
         lte: endDate,
@@ -74,7 +80,7 @@ export async function POST(req: NextRequest) {
         },
       }),
       prisma.mealPlan.createMany({
-        data: plans.map((p: any) => ({
+        data: (plans || []).map((p: InputPlan) => ({
           date: new Date(p.date + "T00:00:00.000Z"),
           userId,
           meals: p.meals,
