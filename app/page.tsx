@@ -262,39 +262,32 @@ export default function Home() {
                       key={meal.id}
                       className="flex items-start justify-between bg-white rounded-3xl p-5 shadow-sm border border-slate-100 transition-all hover:shadow-md"
                     >
-                      <div className="flex gap-4">
+                      <div className="flex gap-4 items-start">
                         <div
-                          className={`flex items-center justify-center p-3 rounded-2xl ${meal.iconBg} w-12 h-12 text-xl font-bold flex-shrink-0`}
+                          className={`flex items-center justify-center p-3 rounded-2xl ${meal.iconBg} w-12 h-12 text-xl font-bold flex-shrink-0 shadow-2xs`}
                         >
                           {meal.icon}
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-2">
                           <div className="flex items-center gap-2">
-                            <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
+                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
                               {meal.title}
                             </h3>
                           </div>
 
                           {hasDishes ? (
-                            <div className="space-y-1.5">
-                              <p className="text-base font-black text-slate-800">
-                                {meal.dishes[0]}
-                              </p>
-                              {meal.dishes.length > 1 && (
-                                <div className="flex flex-wrap gap-1.5">
-                                  {meal.dishes.slice(1).map((dish, i) => (
-                                    <span
-                                      key={`${dish}-${i}`}
-                                      className="inline-flex items-center rounded-xl bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600 border border-slate-200"
-                                    >
-                                      {dish}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
+                            <div className="flex flex-wrap gap-2 items-center pt-0.5">
+                              {meal.dishes.map((dish, i) => (
+                                <span
+                                  key={`${dish}-${i}`}
+                                  className="inline-flex items-center rounded-2xl bg-slate-100/90 border border-slate-200/80 px-3.5 py-1.5 text-sm font-bold text-slate-800 shadow-2xs hover:bg-slate-200/70 transition-all"
+                                >
+                                  {dish}
+                                </span>
+                              ))}
                             </div>
                           ) : (
-                            <p className="text-sm text-slate-400 italic">
+                            <p className="text-sm text-slate-400 italic font-medium">
                               No meals planned for this slot
                             </p>
                           )}
@@ -302,7 +295,7 @@ export default function Home() {
                       </div>
 
                       <div className="text-right flex-shrink-0">
-                        <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-xl">
+                        <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-100/80 px-3 py-1 rounded-xl">
                           {meal.time}
                         </span>
                       </div>
