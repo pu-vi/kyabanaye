@@ -255,7 +255,11 @@ export default function PlanPage() {
     }
   };
 
+  const todayStr = toISODateString(new Date());
+
   const handleAddDish = (dateStr: string, mealType: MealType, dishName: string) => {
+    if (dateStr < todayStr) return;
+
     const key = `${dateStr}_${mealType}`;
     setGrid((prev) => {
       const current = prev[key] || [];
@@ -268,6 +272,8 @@ export default function PlanPage() {
   };
 
   const handleRemoveDish = (dateStr: string, mealType: MealType, dishName: string) => {
+    if (dateStr < todayStr) return;
+
     const key = `${dateStr}_${mealType}`;
     setGrid((prev) => {
       const current = prev[key] || [];
@@ -400,13 +406,17 @@ export default function PlanPage() {
                 {currentWeekDays.map((day) => {
                   const cellKey = `${day.dateStr}_${row.id}`;
                   const selectedDishes = grid[cellKey] || [];
+                  const isPast = day.dateStr < todayStr;
                   return (
                     <div
                       key={`${row.id}-${day.label}`}
-                      className="rounded-2xl bg-slate-50 px-4 py-3 border border-slate-100"
+                      className={`rounded-2xl px-4 py-3 border ${
+                        isPast ? "bg-slate-100/50 border-slate-200/60" : "bg-slate-50 border-slate-100"
+                      }`}
                     >
                       <div className="flex items-center justify-between gap-2 text-xs uppercase tracking-[0.18em] text-slate-500 mb-2">
                         <span>{day.label} ({day.date})</span>
+                        {isPast && <span className="text-[10px] text-slate-400 font-normal lowercase tracking-normal">(past day)</span>}
                       </div>
                       <PlanCell
                         dateStr={day.dateStr}
@@ -415,6 +425,7 @@ export default function PlanPage() {
                         allDishes={allDishes}
                         onAddDish={(name) => handleAddDish(day.dateStr, row.id, name)}
                         onRemoveDish={(name) => handleRemoveDish(day.dateStr, row.id, name)}
+                        readOnly={isPast}
                       />
                     </div>
                   );
@@ -430,17 +441,32 @@ export default function PlanPage() {
             <thead className="bg-slate-100 text-left text-xs uppercase tracking-[0.16em] text-slate-500">
               <tr>
                 <th className="px-4 py-4 font-semibold">Meals \ Days</th>
-                {currentWeekDays.map((day) => (
-                  <th
-                    key={day.label}
-                    className="border-l border-slate-200 px-4 py-4"
-                  >
-                    <div className="text-sm font-semibold text-slate-900">
-                      {day.label}
-                    </div>
-                    <div className="text-xs text-slate-500">{day.date}</div>
-                  </th>
-                ))}
+                {currentWeekDays.map((day) => {
+                  const isPast = day.dateStr < todayStr;
+                  const isToday = day.dateStr === todayStr;
+                  return (
+                    <th
+                      key={day.label}
+                      className={`border-l border-slate-200 px-4 py-4 ${
+                        isPast ? "bg-slate-100/50" : isToday ? "bg-emerald-50/50" : ""
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className={`text-sm font-semibold ${isPast ? "text-slate-400" : isToday ? "text-emerald-700 font-bold" : "text-slate-900"}`}>
+                            {day.label}
+                          </div>
+                          <div className="text-xs text-slate-500">{day.date}</div>
+                        </div>
+                        {isToday && (
+                          <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-full ml-1">
+                            Today
+                          </span>
+                        )}
+                      </div>
+                    </th>
+                  );
+                })}
                 <th className="border-l border-slate-200 px-4 py-4"></th>
               </tr>
             </thead>
@@ -456,10 +482,13 @@ export default function PlanPage() {
                   {currentWeekDays.map((day) => {
                     const cellKey = `${day.dateStr}_${row.id}`;
                     const selectedDishes = grid[cellKey] || [];
+                    const isPast = day.dateStr < todayStr;
                     return (
                       <td
                         key={`${row.id}-${day.label}`}
-                        className="border-l border-slate-200 px-2 py-3 align-top"
+                        className={`border-l border-slate-200 px-2 py-3 align-top ${
+                          isPast ? "bg-slate-50/50" : ""
+                        }`}
                       >
                         <PlanCell
                           dateStr={day.dateStr}
@@ -468,6 +497,7 @@ export default function PlanPage() {
                           allDishes={allDishes}
                           onAddDish={(name) => handleAddDish(day.dateStr, row.id, name)}
                           onRemoveDish={(name) => handleRemoveDish(day.dateStr, row.id, name)}
+                          readOnly={isPast}
                         />
                       </td>
                     );
