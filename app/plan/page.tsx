@@ -147,10 +147,14 @@ export default function PlanPage() {
             `/api/mealplans?userId=${dbUser.id}&startDate=${startDateStr}&endDate=${endDateStr}`
           );
           if (res.ok) {
-            const data = await res.json();
+            interface PlanRecord {
+              date: string;
+              meals: Record<string, string[]>;
+            }
+            const data: PlanRecord[] = await res.json();
             // Translate JSON structure into flat state grid
             const newGrid: Record<string, string[]> = {};
-            data.forEach((plan: any) => {
+            data.forEach((plan: PlanRecord) => {
               const planDate = new Date(plan.date);
               const dateKey = toISODateString(planDate);
               const meals = plan.meals as Record<string, string[]>;
@@ -177,10 +181,6 @@ export default function PlanPage() {
         meal.id === id ? { ...meal, checked: !meal.checked } : meal
       )
     );
-  };
-
-  const resetMealTypes = () => {
-    setActiveMealTypes(mealTypes);
   };
 
   const handlePrevWeek = () => {
@@ -514,7 +514,7 @@ export default function PlanPage() {
         <div className="mt-4 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600 shadow-sm sm:px-6">
           <div className="flex items-center gap-3 font-medium text-emerald-700">
             <span className="rounded-full bg-emerald-100 px-2 py-1">i</span>
-            Search and add multiple dishes to any meal cell. Click the "Save" button to save your weekly plan.
+            Search and add multiple dishes to any meal cell. Click the &quot;Save&quot; button to save your weekly plan.
           </div>
         </div>
       </div>

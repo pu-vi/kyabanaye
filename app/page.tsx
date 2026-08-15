@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FiChevronLeft, FiChevronRight, FiCalendar, FiArrowRight, FiBookOpen } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { useAuth } from "@/context/AuthContext";
 import type { MealType } from "@prisma/client";
 import BottomNav from "./components/BottomNav";
@@ -165,13 +164,6 @@ export default function Home() {
   };
 
   const displayMeals = getMealsToDisplay();
-
-  const formattedSelectedDate = selectedDate.toLocaleDateString("en-US", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
 
   if (loading) {
     return (

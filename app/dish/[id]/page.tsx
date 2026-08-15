@@ -1,7 +1,8 @@
 import DishForm, { DishFormData } from "@/app/dish/DishForm";
 
 async function fetchDish(id: string): Promise<DishFormData | null> {
-  // TODO: Replace with actual data loading from the database.
+  // TODO: Replace with actual data loading from the database using id.
+  if (!id) return null;
   return {
     name: "Palak Paneer",
     description: "Creamy spinach curry with soft paneer cubes.",

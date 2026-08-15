@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { FiMenu, FiLogOut, FiLogIn } from "react-icons/fi";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
@@ -53,9 +55,9 @@ export default function AppHeader() {
               >
                 <FiMenu size={20} />
               </button>
-              <a href="/" className="flex items-center gap-2">
-                <img src="/logo.png" alt="Plate Slate Logo" className="h-16 object-contain" />
-              </a>
+              <Link href="/" className="flex items-center gap-2">
+                <Image src="/logo.png" alt="Plate Slate Logo" width={64} height={64} className="h-16 w-auto object-contain" />
+              </Link>
               <span className="hidden md:inline text-slate-300">|</span>
               <div className="hidden md:block text-left">
                 <p className="text-xs font-semibold text-slate-700">
@@ -68,21 +70,26 @@ export default function AppHeader() {
             </div>
             <div className="hidden lg:flex lg:items-center lg:gap-6">
               <nav className="text-sm font-medium text-slate-600 flex items-center gap-4">
-                <a href="/" className="hover:text-emerald-600 transition-colors">Home</a>
+                <Link href="/" className="hover:text-emerald-600 transition-colors">Home</Link>
                 <span>·</span>
-                <a href="/plan" className="hover:text-emerald-600 transition-colors">Plans</a>
+                <Link href="/plan" className="hover:text-emerald-600 transition-colors">Plans</Link>
                 <span>·</span>
-                <a href="/dish" className="hover:text-emerald-600 transition-colors">Recipes</a>
+                <Link href="/dish" className="hover:text-emerald-600 transition-colors">Recipes</Link>
               </nav>
 
               <div className="flex items-center gap-3 border-l border-slate-200 pl-6">
                 {dbUser ? (
                   <div className="flex items-center gap-3">
-                    <img
-                      src={avatarUrl}
-                      alt={displayName}
-                      className="h-9 w-9 rounded-full object-cover shadow-sm ring-2 ring-emerald-500/20"
-                    />
+                    {avatarUrl && (
+                      <Image
+                        src={avatarUrl}
+                        alt={displayName}
+                        width={36}
+                        height={36}
+                        unoptimized
+                        className="h-9 w-9 rounded-full object-cover shadow-sm ring-2 ring-emerald-500/20"
+                      />
+                    )}
                     <button
                       onClick={handleAuthAction}
                       title="Log out"

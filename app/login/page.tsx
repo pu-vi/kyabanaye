@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { FcGoogle } from "react-icons/fc";
@@ -23,11 +24,10 @@ export default function LoginPage() {
     setSigningIn(true);
     try {
       await signInWithGoogle();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(
-        err.message || "Failed to authenticate with Google. Please try again."
-      );
+      const errorMessage = err instanceof Error ? err.message : "Failed to authenticate with Google. Please try again.";
+      setError(errorMessage);
       setSigningIn(false);
     }
   };
@@ -41,10 +41,12 @@ export default function LoginPage() {
       <div className="w-full max-w-md bg-white rounded-3xl border border-slate-200/60 p-8 sm:p-12 shadow-xl text-center space-y-8">
         <div className="space-y-4">
           {/* Logo instead of hardcoded app name */}
-          <img
+          <Image
             src="/logo.png"
             alt="Plate Slate"
-            className="mx-auto h-20 sm:h-24 object-contain animate-fade-in"
+            width={96}
+            height={96}
+            className="mx-auto h-20 sm:h-24 w-auto object-contain animate-fade-in"
           />
           <h1 className="text-xl font-bold tracking-tight text-slate-800">
             Welcome to Plate Slate

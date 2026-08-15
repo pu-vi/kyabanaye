@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { FiPlus, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import BottomNav from "@/app/components/BottomNav";
 
@@ -38,18 +39,33 @@ export default function DishesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    const params = new URLSearchParams({ page: String(page) });
-    if (CURRENT_USER_ID) params.set("userId", CURRENT_USER_ID);
+    let isMounted = true;
+    const fetchDishes = async () => {
+      setLoading(true);
+      const params = new URLSearchParams({ page: String(page) });
+      if (CURRENT_USER_ID) params.set("userId", CURRENT_USER_ID);
 
-    fetch(`/api/dishes?${params}`)
-      .then((r) => r.json())
-      .then((data) => {
-        setDishes(data.dishes);
-        setTotalPages(data.totalPages);
-        setTotal(data.total);
-      })
-      .finally(() => setLoading(false));
+      try {
+        const r = await fetch(`/api/dishes?${params}`);
+        const data = await r.json();
+        if (isMounted) {
+          setDishes(data.dishes || []);
+          setTotalPages(data.totalPages || 1);
+          setTotal(data.total || 0);
+        }
+      } catch (err) {
+        console.error("Failed to load dishes:", err);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchDishes();
+    return () => {
+      isMounted = false;
+    };
   }, [page]);
 
   return (
@@ -95,7 +111,14 @@ export default function DishesPage() {
                 {/* Image / placeholder */}
                 <div className="w-14 h-14 rounded-xl bg-slate-100 flex-shrink-0 overflow-hidden">
                   {dish.imageUrl ? (
-                    <img src={dish.imageUrl} alt={dish.name} className="w-full h-full object-cover" />
+                    <Image
+                      src={dish.imageUrl}
+                      alt={dish.name}
+                      width={56}
+                      height={56}
+                      unoptimized
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-2xl">🍴</div>
                   )}

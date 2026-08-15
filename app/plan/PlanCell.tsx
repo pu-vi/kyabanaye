@@ -179,7 +179,7 @@ export default function PlanCell({
                       onClick={() => handleSelectDishName(searchQuery)}
                       className="w-full text-left rounded-lg px-2.5 py-1.5 text-xs text-emerald-700 hover:bg-emerald-50 hover:text-emerald-950 transition cursor-pointer font-semibold"
                     >
-                      + Add: "{searchQuery.trim()}"
+                      + Add: &quot;{searchQuery.trim()}&quot;
                     </button>
                   )}
 

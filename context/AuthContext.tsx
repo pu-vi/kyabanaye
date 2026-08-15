@@ -30,7 +30,26 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [dbUser, setDbUser] = useState<DbUser | null>(null);
+  const [dbUser, setDbUser] = useState<DbUser | null>(() => {
+    if (typeof window !== "undefined") {
+      const stored = window.localStorage.getItem("plateslate-user");
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          return {
+            id: parsed.id,
+            email: parsed.email,
+            name: parsed.name,
+            role: parsed.role,
+            createdAt: "", // Placeholder
+          };
+        } catch {
+          window.localStorage.removeItem("plateslate-user");
+        }
+      }
+    }
+    return null;
+  });
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
 
@@ -75,25 +94,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    // Attempt to load from localStorage first for fast initial load
-    if (typeof window !== "undefined") {
-      const stored = window.localStorage.getItem("plateslate-user");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          setDbUser({
-            id: parsed.id,
-            email: parsed.email,
-            name: parsed.name,
-            role: parsed.role,
-            createdAt: "", // Placeholder
-          });
-        } catch {
-          window.localStorage.removeItem("plateslate-user");
-        }
-      }
-    }
-
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {

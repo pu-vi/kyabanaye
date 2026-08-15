@@ -4,17 +4,24 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { FiDownload, FiX, FiShare } from "react-icons/fi";
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
 export default function InstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isIos, setIsIos] = useState(false);
   const [showIosPrompt, setShowIosPrompt] = useState(false);
 
   useEffect(() => {
-    // Check if already in standalone mode (already installed)
+    if (typeof window === "undefined") return;
+
+    const nav = window.navigator as Navigator & { standalone?: boolean };
     const isStandalone =
       window.matchMedia("(display-mode: standalone)").matches ||
-      (window.navigator as any).standalone === true;
+      nav.standalone === true;
 
     if (isStandalone) return;
 
@@ -26,24 +33,27 @@ export default function InstallPrompt() {
     }
 
     // Detect iOS
-    const userAgent = window.navigator.userAgent.toLowerCase();
+    const userAgent = nav.userAgent.toLowerCase();
     const ios = /iphone|ipad|ipod/.test(userAgent);
-    setIsIos(ios);
 
-    if (ios && !isStandalone) {
-      setShowIosPrompt(true);
-    }
+    const timer = setTimeout(() => {
+      setIsIos(ios);
+      if (ios && !isStandalone) {
+        setShowIosPrompt(true);
+      }
+    }, 0);
 
     // Listen for beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e);
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
       setShowPrompt(true);
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
     return () => {
+      clearTimeout(timer);
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     };
   }, []);
