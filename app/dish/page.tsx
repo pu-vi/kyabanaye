@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { FiPlus, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import BottomNav from "@/app/components/BottomNav";
 
@@ -111,12 +110,9 @@ export default function DishesPage() {
                 {/* Image / placeholder */}
                 <div className="w-14 h-14 rounded-xl bg-slate-100 flex-shrink-0 overflow-hidden">
                   {dish.imageUrl ? (
-                    <Image
+                    <img
                       src={dish.imageUrl}
                       alt={dish.name}
-                      width={56}
-                      height={56}
-                      unoptimized
                       className="w-full h-full object-cover"
                     />
                   ) : (

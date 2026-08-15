@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { FiMenu, FiLogOut, FiLogIn } from "react-icons/fi";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
@@ -56,7 +55,7 @@ export default function AppHeader() {
                 <FiMenu size={20} />
               </button>
               <Link href="/" className="flex items-center gap-2">
-                <Image src="/logo.png" alt="Plate Slate Logo" width={64} height={64} className="h-16 w-auto object-contain" />
+                <img src="/logo.png" alt="Plate Slate Logo" className="h-16 w-auto object-contain" />
               </Link>
               <span className="hidden md:inline text-slate-300">|</span>
               <div className="hidden md:block text-left">
@@ -81,12 +80,9 @@ export default function AppHeader() {
                 {dbUser ? (
                   <div className="flex items-center gap-3">
                     {avatarUrl && (
-                      <Image
+                      <img
                         src={avatarUrl}
                         alt={displayName}
-                        width={36}
-                        height={36}
-                        unoptimized
                         className="h-9 w-9 rounded-full object-cover shadow-sm ring-2 ring-emerald-500/20"
                       />
                     )}
